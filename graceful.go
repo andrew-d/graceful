@@ -1,6 +1,7 @@
 package graceful
 
 import (
+	"crypto/tls"
 	"net"
 	"net/http"
 	"time"
@@ -44,8 +45,33 @@ func (s *GracefulServer) ListenAndServe(srv *http.Server) error {
 // ListenAndServeTLS is equivalent to http.Server.ListenAndServeTLS with
 // graceful shutdown enabled.
 func (s *GracefulServer) ListenAndServeTLS(srv *http.Server, certFile, keyFile string) error {
-	// TODO: implement me
-	return nil
+	addr := srv.Addr
+	if addr == "" {
+		addr = ":https"
+	}
+
+	config := &tls.Config{}
+	if srv.TLSConfig != nil {
+		*config = *srv.TLSConfig
+	}
+	if config.NextProtos == nil {
+		config.NextProtos = []string{"http/1.1"}
+	}
+
+	var err error
+	config.Certificates = make([]tls.Certificate, 1)
+	config.Certificates[0], err = tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		return err
+	}
+
+	conn, err := net.Listen("tcp", addr)
+	if err != nil {
+		return err
+	}
+
+	tlsListener := tls.NewListener(conn, config)
+	return s.Serve(srv, tlsListener)
 }
 
 // Serve is equivalent to http.Server.Serve with graceful shutdown enabled.

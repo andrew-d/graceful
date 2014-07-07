@@ -32,7 +32,7 @@ func runQuery(t *testing.T, expected int, shouldErr bool, wg *sync.WaitGroup) {
 			if errno == syscall.ECONNREFUSED {
 				return
 			} else if err != nil {
-				t.Fatal("Error on Get:", err)
+				t.Fatal("Error on GET:", err)
 			}
 		}
 	}
