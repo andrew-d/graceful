@@ -27,11 +27,14 @@ func main() {
 
 	srv := graceful.NewServer()
 	srv.Timeout = 10*time.Second
-	go srv.Run(":3001", mux)
 
-	// ... wait for shutdown
+	go func() {
+		// ... catch signals, or otherwise wait to signal shutdown
+		srv.Shutdown <- struct{}{}
+	}()
 
-	srv.Shutdown <- struct{}{}
+	// This will return when the server has shut down.
+	srv.Run(":3001", mux)
 }
 ```
 
