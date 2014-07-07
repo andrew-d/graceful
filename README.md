@@ -1,7 +1,7 @@
 graceful [![GoDoc](https://godoc.org/github.com/andrew-d/graceful?status.png)](http://godoc.org/github.com/andrew-d/graceful) [![Build Status](https://travis-ci.org/andrew-d/graceful.svg)](https://travis-ci.org/andrew-d/graceful)
 ========
 
-This is a fork of [Stretchr, Inc.'s Graceful](https://github.com/stretchr/graceful),
+This is a fork of [Stretchr, Inc.'s graceful](https://github.com/stretchr/graceful),
 a Go 1.3+ package enabling graceful shutdown of http.Handler servers.  This fork
 allows more fine-grained control over when the server is shutdown.
 
@@ -14,7 +14,7 @@ Usage of Graceful is simple. Create your http.Handler and pass it to the `Run` f
 import (
 	"fmt"
 	"net/http"
-  "time"
+	"time"
 
 	"github.com/andrew-d/graceful"
 )
@@ -26,12 +26,12 @@ func main() {
 	})
 
 	srv := graceful.NewServer()
-  srv.Timeout = 10*time.Second
+	srv.Timeout = 10*time.Second
 	go srv.Run(":3001", mux)
 
-  // ... wait for shutdown
+	// ... wait for shutdown
 
-  srv.Shutdown <- struct{}{}
+	srv.Shutdown <- struct{}{}
 }
 ```
 
