@@ -4,6 +4,8 @@ import (
 	"crypto/tls"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
 	"time"
 )
 
@@ -182,4 +184,41 @@ func (s *GracefulServer) Serve(srv *http.Server, listener net.Listener) error {
 	}
 
 	return err
+}
+
+// Helper function that sets up shutdown notification.
+func registerShutdown(srv *GracefulServer) {
+	// These values are different on Windows, so we call a helper function to set
+	// them up.
+	c := make(chan os.Signal, 1)
+	registerNotify(c)
+	go func() {
+		<-c
+		signal.Stop(c)
+		srv.Shutdown <- struct{}{}
+	}()
+}
+
+// Helper function that does the same as GracefulServer.Run, automatically
+// shutting down whenever a SIGINT or SIGTERM is sent to the process.
+func Run(addr string, handler http.Handler) error {
+	srv := NewServer()
+	registerShutdown(srv)
+	return srv.Run(addr, handler)
+}
+
+// Helper function that does the same as GracefulServer.ListenAndServe,
+// automatically shutting down whenever a SIGINT or SIGTERM is sent to the process.
+func ListenAndServe(h *http.Server) error {
+	srv := NewServer()
+	registerShutdown(srv)
+	return srv.ListenAndServe(h)
+}
+
+// Helper function that does the same as GracefulServer.ListenAndServeTLS,
+// automatically shutting down whenever a SIGINT or SIGTERM is sent to the process.
+func ListenAndServeTLS(h *http.Server, certFile, keyFile string) error {
+	srv := NewServer()
+	registerShutdown(srv)
+	return srv.ListenAndServeTLS(h, certFile, keyFile)
 }
