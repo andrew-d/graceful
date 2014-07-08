@@ -1,4 +1,5 @@
 // +build windows
+// +build go1.3
 
 package graceful
 
