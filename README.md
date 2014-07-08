@@ -65,7 +65,9 @@ func main() {
 In addition to `Run` there are the http.Server counterparts `ListenAndServe`,
 `ListenAndServeTLS` and `Serve`, which allow additional configuration.  See
 [the examples](https://github.com/andrew-d/graceful/tree/master/examples)
-for some fully-working demonstrations.
+for some fully-working demonstrations, or
+[the documentation](http://godoc.org/github.com/andrew-d/graceful) for the
+full API.
 
 ## How It Works
 
