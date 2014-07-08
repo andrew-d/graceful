@@ -44,7 +44,7 @@ func main() {
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, os.Kill)
-	go func(){
+	go func() {
 		for _ = range c {
 			srv1.Shutdown <- struct{}{}
 			srv2.Shutdown <- struct{}{}
