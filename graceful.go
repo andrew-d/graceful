@@ -101,7 +101,7 @@ func (s *GracefulServer) Serve(srv *http.Server, listener net.Listener) error {
 		switch state {
 		case http.StateActive:
 			add <- conn
-		case http.StateClosed, http.StateIdle:
+		case http.StateClosed, http.StateHijacked, http.StateIdle:
 			remove <- conn
 		}
 	}
