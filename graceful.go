@@ -10,10 +10,20 @@ import (
 )
 
 type GracefulServer struct {
+	// The shutdown channel.  Send on this channel to shut down the server.
+	// Note that when the send finishes, the server may not yet be shut down - the
+	// call to Serve() will return when the shutdown is complete.
 	Shutdown chan struct{}
+
+	// Time between when the shutdown has been signalled and all remaining open
+	// connections are forcefully closed.  A value of 0 represents no timeout, and
+	// that the server should wait until all open connections are closed before
+	// returning.
 	Timeout  time.Duration
 }
 
+// Create a new instance of GracefulServer with a default timeout of
+// 10 seconds.
 func NewServer() *GracefulServer {
 	return &GracefulServer{
 		Shutdown: make(chan struct{}),
@@ -78,8 +88,9 @@ func (s *GracefulServer) ListenAndServeTLS(srv *http.Server, certFile, keyFile s
 
 // Serve is equivalent to http.Server.Serve with graceful shutdown enabled.
 //
-// This function will only return when the server has been properly shut down
-// and all open connections have been closed.
+// This function will return when the server has been properly shut down and
+// all open connections have been closed, or, if the timeout expires, when all
+// remaining open connections have been forcefully closed.
 func (s *GracefulServer) Serve(srv *http.Server, listener net.Listener) error {
 	// We need to track the connection state of all inbound connections.
 	add := make(chan net.Conn)
